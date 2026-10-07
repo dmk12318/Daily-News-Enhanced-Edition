@@ -240,26 +240,57 @@ def run_columns(hours=24, feed_time="") -> int:
         "中国", "写一篇「中国」专栏：只归纳境内媒体的报道。", domestic,
         lib.OUT_DIR / "中国专栏.md"))
     # 涉华/涉鲁单独喂给模型：实测让它自己在全部稿件里挑，它会漏
+    # 而且塞进同一段提示词里也会被忽略——所以拆成独立的一次调用，写完再拼接
     if china_hits or sd_hits:
-        extra = ("下面这段是**已经按关键词筛出来的涉华、涉鲁稿件**，"
-                 "请只用来写文末两节，不要漏、也不用另找：\n\n"
-                 + listing(china_hits + sd_hits))
+        focus = china_hits + sd_hits
     else:
-        extra = ("本期关键词筛选**没有命中**任何涉华、涉鲁稿件，"
-                 "文末两节请如实写「本期未见相关报道」。")
-    ok.append(write_column(
+        focus = []
+    wrote = write_column(
         "国际",
         "写一篇「国际」专栏，覆盖**全球**：世界各地的新闻都要讲。\n"
-        "正文按七个栏目（要闻/财经/科技/军事/体育/人文/社会）归纳；\n"
-        "**文末必须另起两个小节**，只做情报整理、不写评论：\n"
-        "## 涉台港澳疆藏 —— 境外媒体涉台、涉港、涉澳、涉疆、涉藏的报道；\n"
-        "## 涉鲁简报 —— 与山东有关的报道。\n"
-        "每节用【事实】【表态】【推测】三类分点。",
+        "正文按七个栏目（要闻/财经/科技/军事/体育/人文/社会）归纳，"
+        "**不要写涉华、涉鲁的内容**（那部分另有专门小节，稍后拼接）。",
         overseas,
-        lib.OUT_DIR / "国际专栏.md",
-        extra=extra))
+        lib.OUT_DIR / "国际专栏.md")
+    if wrote:
+        append_focus_sections(lib.OUT_DIR / "国际专栏.md", focus)
+    ok.append(wrote)
     print(f"完成 {sum(ok)} / 2")
     return 0 if any(ok) else 1
+
+
+FOCUS_HEAD = """## 涉台港澳疆藏
+
+"""
+
+
+def append_focus_sections(path: Path, focus) -> None:
+    """涉华、涉鲁两节单独一次调用，写完拼到国际专栏末尾。
+
+    实测把这两节和正文放在同一次提示词里，模型会直接写「未见相关报道」，
+    哪怕素材里明明有。拆开就稳定了。
+    """
+    if focus:
+        body = listing(focus)
+        ask = ("下面这些是**已经确认与涉华、涉鲁相关**的稿件。请只做情报整理，不写评论，"
+               "严格按【事实】【表态】【推测】三类分点。\n"
+               "输出两个小节，标题原样使用：\n\n"
+               "## 涉台港澳疆藏\n（涉台、涉港、涉澳、涉疆、涉藏的报道）\n\n"
+               "## 涉鲁简报\n（与山东有关的报道；没有就写「本期未见相关报道」）\n\n"
+               f"稿件：\n{body}")
+    else:
+        ask = ("本期没有筛出任何涉华、涉鲁稿件。请照实输出下面两节，"
+               "不要编造内容：\n\n## 涉台港澳疆藏\n【事实】本期未见相关报道。\n\n"
+               "## 涉鲁简报\n【事实】本期未见相关报道。")
+    try:
+        text = chat([{"role": "system", "content": "你是开源情报分析员，只做整理，不下结论。"},
+                     {"role": "user", "content": ask}], max_tokens=3000, temperature=0.2)
+    except Exception as exc:  # noqa: BLE001
+        print(f"  涉华/涉鲁小节生成失败：{exc}")
+        return
+    with open(path, "a", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n\n" + text.strip() + "\n")
+    print(f"  已拼接涉华/涉鲁小节（素材 {len(focus)} 条，{len(text)} 字）")
 
 
 def main() -> int:

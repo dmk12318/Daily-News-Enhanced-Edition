@@ -197,6 +197,10 @@ def main() -> int:
     title, abstract, columns = load_columns(args.editorial or [])
 
     items, mode = load_items(lib.to_iso(window_start), star_map())
+    if not items:
+        # 推送触发但没抓取时会走到这里：宁可不出报，也不要生成一期空日报
+        print("窗口内没有条目，跳过生成（通常说明这次是推送触发、没有抓取）")
+        return 0
     text = render(items, fetched_at, window_start.astimezone(lib.CST),
                   columns, title, abstract, mode, args.section_cap)
 
