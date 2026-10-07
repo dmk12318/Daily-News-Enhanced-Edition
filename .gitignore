@@ -6,6 +6,14 @@ __pycache__/
 data/news.db
 shots/
 
+# 每次运行都会重写的诊断/中间文件：云端和本地都会写，进仓库会互相覆盖
+data/fetch_report.json
+data/html_fallback_report.json
+data/browser_fallback_report.json
+data/gnews_report.json
+data/to_classify.json
+data/sections.json
+
 # 编辑器 / 系统
 .vscode/
 .idea/
