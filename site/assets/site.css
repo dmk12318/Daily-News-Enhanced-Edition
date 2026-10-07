@@ -1,0 +1,128 @@
+
+:root{
+  --bg:#faf7f2; --fg:#1c1a17; --dim:#6b6660; --line:#e2dcd2;
+  --card:#fffdf9; --accent:#b3261e; --accent2:#1d4ed8;
+  --fact:#8a857e; --shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.04);
+  color-scheme: light;
+}
+html[data-theme="dark"]{
+  --bg:#14130f; --fg:#e8e4dc; --dim:#9b958c; --line:#312e28;
+  --card:#1c1a16; --accent:#e8736a; --accent2:#7ba0f5;
+  --fact:#8f8a82; --shadow:0 1px 2px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font:16px/1.8 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* 报头 */
+.top{
+  position:sticky; top:0; z-index:20; background:var(--bg);
+  border-bottom:1px solid var(--line); padding:.6rem 1rem;
+  display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;
+}
+.brand{font-family:Georgia,"Songti SC","SimSun",serif; font-size:1.35rem;
+  font-weight:700; letter-spacing:.08em; color:var(--accent)}
+.tagline{color:var(--dim); font-size:.8rem; white-space:nowrap}
+.grow{flex:1}
+.dates{display:flex; align-items:center; gap:.35rem;
+  border:1px solid var(--line); border-radius:999px; padding:.2rem .5rem; background:var(--card)}
+.dates a,.dates button{padding:.15rem .4rem; color:var(--dim); border-radius:6px}
+.dates a:hover,.dates button:hover{background:var(--line); text-decoration:none}
+.dates .cur{font-size:.85rem; padding:0 .3rem; min-width:9.5rem; text-align:center}
+.search{
+  border:1px solid var(--line); border-radius:999px; padding:.4rem .9rem;
+  background:var(--card); color:inherit; font-size:.85rem; width:13rem; outline:none;
+}
+.search:focus{border-color:var(--accent)}
+.icon{width:2rem;height:2rem;border-radius:999px;border:1px solid var(--line);
+  background:var(--card); display:grid;place-items:center;font-size:.9rem}
+.icon:hover{background:var(--line)}
+
+/* 分区标签 */
+.tabs{
+  position:sticky; top:3.4rem; z-index:19; background:var(--bg);
+  display:flex; gap:.1rem; overflow-x:auto; padding:.5rem 1rem .6rem;
+  border-bottom:1px solid var(--line); scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:.25rem .7rem; border-radius:999px; color:var(--dim); white-space:nowrap; font-size:.9rem}
+.tab b{font-weight:600; opacity:.6; margin-left:.25rem; font-size:.8rem}
+.tab:hover{background:var(--line); text-decoration:none}
+.tab.on{color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.tab.on b{opacity:1}
+
+main{max-width:46rem; margin:0 auto; padding:1.2rem 1rem 4rem}
+
+/* 卡片与专栏 */
+.card{background:var(--card); border:1px solid var(--line); border-radius:10px;
+  box-shadow:var(--shadow); padding:1.1rem 1.2rem; margin-bottom:1.6rem}
+.badges{display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; flex-wrap:wrap}
+.badge{font-size:.75rem; padding:.1rem .5rem; border-radius:999px;
+  background:var(--accent); color:#fff}
+.badge.ghost{background:transparent;color:var(--dim);border:1px solid var(--line)}
+.col-title{font-family:Georgia,"Songti SC","SimSun",serif; font-size:1.5rem;
+  line-height:1.45; margin:.35rem 0 1rem; letter-spacing:.01em}
+.ed h3{font-size:1rem; margin:1.6rem 0 .5rem}
+.ed h3:first-child{margin-top:0}
+.ed p{margin:.5rem 0}
+.fact,.analysis{margin:.5rem 0; padding-left:.8rem}
+.fact{border-left:3px solid var(--fact)}
+.analysis{border-left:3px solid var(--accent2)}
+.fact .tag,.analysis .tag{display:inline-block;margin-right:.5rem;padding:.05rem .45rem;
+  border-radius:4px;font-size:.78rem;vertical-align:.08rem}
+.fact .tag{background:color-mix(in srgb,var(--fact) 20%,transparent);color:var(--fact)}
+.analysis .tag{background:color-mix(in srgb,var(--accent2) 20%,transparent);color:var(--accent2)}
+
+.lead{background:color-mix(in srgb,var(--accent) 7%,transparent);
+  border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+  padding:.9rem 1.1rem; margin:0 0 1.2rem; font-size:.95rem}
+.lead p{margin:0}
+.notice{background:color-mix(in srgb,#d19a1e 12%,transparent);
+  border:1px solid color-mix(in srgb,#d19a1e 35%,transparent);
+  border-radius:8px;padding:.6rem .9rem;margin:0 0 1.2rem;font-size:.85rem;color:var(--dim)}
+
+/* 条目列表 */
+.sec-head{display:flex; align-items:baseline; gap:.6rem;
+  border-bottom:2px solid var(--fg); padding-bottom:.3rem; margin:2rem 0 .9rem}
+.sec-head h2{font-size:1.15rem; margin:0; font-family:Georgia,"Songti SC","SimSun",serif}
+.sec-head span{color:var(--dim); font-size:.8rem}
+.item{position:relative; padding:.7rem 0 .7rem 0; border-bottom:1px solid var(--line)}
+.item h3{font-size:1rem; font-weight:600; margin:0 0 .2rem; line-height:1.55}
+.item .sum{color:var(--dim); font-size:.88rem; margin:.15rem 0 .25rem;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.item .meta{color:var(--dim); font-size:.78rem}
+.item .star{color:var(--accent); letter-spacing:-.05em}
+.item .acts{position:absolute; right:0; top:.7rem; display:flex; gap:.3rem; opacity:0; transition:opacity .15s}
+.item:hover .acts{opacity:1}
+.item[data-read="1"] h3{color:var(--dim); font-weight:500}
+.item[data-fav="1"] .fav{color:var(--accent)}
+@media (hover:none){.item .acts{opacity:1}}
+.empty{color:var(--dim); padding:2rem 0; text-align:center}
+
+/* 索引页 */
+.issues{list-style:none;padding:0;margin:0}
+.issues li{border-bottom:1px solid var(--line)}
+.issues a{display:flex;justify-content:space-between;align-items:baseline;
+  padding:.8rem .2rem;gap:1rem}
+.issues a:hover{text-decoration:none;color:var(--accent)}
+.issues .d{font-family:Georgia,"Songti SC","SimSun",serif; font-size:1.05rem}
+.issues .t{color:var(--dim); font-size:.85rem; flex:1;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.issues .n{color:var(--dim); font-size:.8rem; white-space:nowrap}
+
+footer{max-width:46rem;margin:0 auto;padding:1rem 1rem 3rem;color:var(--dim);
+  font-size:.78rem;border-top:1px solid var(--line)}
+@media (max-width:600px){
+  .tagline{display:none}
+  .search{width:100%;order:9}
+  .tabs{top:6.2rem}
+  .col-title{font-size:1.3rem}
+  main{padding:1rem .8rem 3rem}
+}

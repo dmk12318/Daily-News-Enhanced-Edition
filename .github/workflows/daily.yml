@@ -1,0 +1,99 @@
+name: 每日新闻 · 抓取与发布
+
+# 每天 UTC 00:00 = 北京 08:00。
+# GitHub 的定时任务在高峰期会延迟几分钟到半小时，属正常。
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_editorial:
+        description: 本次只抓新闻、不写专栏
+        type: boolean
+        default: false
+
+permissions:
+  contents: write      # 把当天数据提交回仓库
+  pages: write         # 发布 Pages
+  id-token: write
+
+concurrency:
+  group: daily-news
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      EDITORIAL_API_KEY: ${{ secrets.EDITORIAL_API_KEY }}
+      EDITORIAL_BASE_URL: ${{ vars.EDITORIAL_BASE_URL }}
+      EDITORIAL_MODEL: ${{ vars.EDITORIAL_MODEL || 'deepseek-flash' }}
+      EDITORIAL_THINKING: "disabled"   # 开思考模式会吃光 max_tokens，正文变空
+      PYTHONIOENCODING: "utf-8"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 装依赖
+        run: pip install --quiet trafilatura beautifulsoup4 lxml
+
+      - name: 抓取 + 按故事簇选稿
+        # --fast 跳过真实浏览器那层：云端装 Chromium 太慢，且它只多覆盖个位数源
+        if: ${{ github.event_name != 'push' }}
+        run: python scripts/run_daily.py --fast --skip-discover
+
+      - name: 云端判栏目
+        if: ${{ github.event_name != 'push' && inputs.skip_editorial != true }}
+        continue-on-error: true
+        run: |
+          python scripts/cloud_editorial.py --classify
+          python scripts/classify.py --apply-index data/sections.json
+
+      - name: 云端写三篇专栏
+        if: ${{ github.event_name != 'push' && inputs.skip_editorial != true }}
+        continue-on-error: true     # 专栏失败不能拖垮整期
+        run: |
+          python scripts/cloud_editorial.py --columns
+
+      - name: 生成日报
+        run: |
+          if [ -f out/中国专栏.md ]; then
+            python scripts/digest.py \
+              --editorial 中国=out/中国专栏.md \
+              --editorial 国际=out/国际专栏.md \
+              --editorial 中国境外=out/中国境外专栏.md
+          else
+            python scripts/digest.py
+          fi
+
+      - name: 渲染站点
+        run: python scripts/render_html.py --all
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      # 提交放最后且允许失败：即使没写权限，站点也已经构建完成，不会停更
+      - name: 数据提交回仓库
+        continue-on-error: true
+        run: |
+          git config user.name  "daily-news-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add out data .gitignore
+          git diff --staged --quiet || git commit -m "每日更新 $(date -u +%F)"
+          git push
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,14 @@
+{
+  "name": "每日新闻",
+  "short_name": "每日新闻",
+  "description": "每日国内外要闻聚合与主编专栏",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#faf7f2",
+  "lang": "zh-CN",
+  "icons": [
+    {"src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ]
+}
