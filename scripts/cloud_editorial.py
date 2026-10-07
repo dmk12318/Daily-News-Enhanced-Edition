@@ -23,7 +23,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -157,9 +157,18 @@ RULES = (
 )
 
 
-def selected_items(hours=24):
+def window_start(hours: int, feed_time: str = "") -> str:
+    """算窗口起点。给了 feed-time 就用它（本地/云端对齐比对时用）。"""
+    if feed_time:
+        base = datetime.fromisoformat(feed_time).replace(tzinfo=lib.CST).astimezone(timezone.utc)
+    else:
+        base = lib.now_utc()
+    return lib.to_iso(base - timedelta(hours=hours))
+
+
+def selected_items(hours=24, feed_time=""):
     conn = lib.connect()
-    start = lib.to_iso(lib.now_utc() - timedelta(hours=hours))
+    start = window_start(hours, feed_time)
     rows = conn.execute(
         "SELECT title, source, scope, section, published_utc, summary FROM items "
         "WHERE selected=1 AND ((published_utc IS NOT NULL AND published_utc >= ?)"
@@ -211,8 +220,8 @@ def write_column(name, intro, items, out_path: Path, with_meta=False) -> bool:
     return True
 
 
-def run_columns(hours=24) -> int:
-    items = selected_items(hours)
+def run_columns(hours=24, feed_time="") -> int:
+    items = selected_items(hours, feed_time)
     if not items:
         print("没有选中的条目，先跑 shortlist + classify")
         return 2
@@ -246,11 +255,13 @@ def main() -> int:
     parser.add_argument("--classify", action="store_true")
     parser.add_argument("--columns", action="store_true")
     parser.add_argument("--hours", type=int, default=24)
+    parser.add_argument("--feed-time", default="",
+                        help="（可选）固定抓取时刻，如 2026-10-07T23:40，用于和本地对齐")
     args = parser.parse_args()
     if args.classify:
         return run_classify()
     if args.columns:
-        return run_columns(args.hours)
+        return run_columns(args.hours, args.feed_time)
     parser.print_help()
     return 1
 

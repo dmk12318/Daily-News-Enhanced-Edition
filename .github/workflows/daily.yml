@@ -13,6 +13,10 @@ on:
         description: 本次只抓新闻、不写专栏
         type: boolean
         default: false
+      feed_time:
+        description: "（可选）固定抓取时刻，如 2026-10-07T23:40；留空用当前时间。用于和本地对齐做逐条比对"
+        type: string
+        default: ""
 
 permissions:
   contents: write      # 把当天数据提交回仓库
@@ -33,9 +37,9 @@ jobs:
       EDITORIAL_THINKING: "disabled"   # 开思考模式会吃光 max_tokens，正文变空
       PYTHONIOENCODING: "utf-8"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -45,36 +49,45 @@ jobs:
       - name: 抓取 + 按故事簇选稿
         # --fast 跳过真实浏览器那层：云端装 Chromium 太慢，且它只多覆盖个位数源
         if: ${{ github.event_name != 'push' }}
-        run: python scripts/run_daily.py --fast --skip-discover
+        run: |
+          FT=""
+          if [ -n "${{ inputs.feed_time }}" ]; then FT="--feed-time ${{ inputs.feed_time }}"; fi
+          python scripts/run_daily.py --fast --skip-discover $FT
 
       - name: 云端判栏目
         if: ${{ github.event_name != 'push' && inputs.skip_editorial != true }}
         continue-on-error: true
         run: |
-          python scripts/cloud_editorial.py --classify
+          FT=""
+          if [ -n "${{ inputs.feed_time }}" ]; then FT="--feed-time ${{ inputs.feed_time }}"; fi
+          python scripts/cloud_editorial.py --classify $FT
           python scripts/classify.py --apply-index data/sections.json
 
       - name: 云端写三篇专栏
         if: ${{ github.event_name != 'push' && inputs.skip_editorial != true }}
         continue-on-error: true     # 专栏失败不能拖垮整期
         run: |
-          python scripts/cloud_editorial.py --columns
+          FT=""
+          if [ -n "${{ inputs.feed_time }}" ]; then FT="--feed-time ${{ inputs.feed_time }}"; fi
+          python scripts/cloud_editorial.py --columns $FT
 
       - name: 生成日报
         run: |
+          FT=""
+          if [ -n "${{ inputs.feed_time }}" ]; then FT="--feed-time ${{ inputs.feed_time }}"; fi
           if [ -f out/中国专栏.md ]; then
-            python scripts/digest.py \
+            python scripts/digest.py $FT \
               --editorial 中国=out/中国专栏.md \
               --editorial 国际=out/国际专栏.md \
               --editorial 中国境外=out/中国境外专栏.md
           else
-            python scripts/digest.py
+            python scripts/digest.py $FT
           fi
 
       - name: 渲染站点
         run: python scripts/render_html.py --all
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
@@ -96,4 +109,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
