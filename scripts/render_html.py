@@ -160,38 +160,55 @@ def page(title, body, description="", head_extra="", assets="assets") -> str:
     )
 
 
-def topbar(date_label, prev_href, next_href) -> str:
-    prev = (f'<a href="{prev_href}" title="上一期">‹</a>' if prev_href
-            else '<a style="opacity:.3">‹</a>')
-    nxt = (f'<a href="{next_href}" title="下一期">›</a>' if next_href
-           else '<a style="opacity:.3">›</a>')
+def date_menu(issues, current_date: str) -> str:
+    """日期按钮 + 往期下拉菜单。进入页面默认就是最新一期，不用选。"""
+    rows = []
+    for issue in issues:                       # 传进来时已按新→旧排好
+        n = sum(len(s["items"]) for s in issue["sections"])
+        cls = " on" if issue["date"] == current_date else ""
+        title = issue["title"] or "（无标题）"
+        rows.append(
+            f'<a class="{cls.strip()}" href="{issue["date"]}.html">'
+            f'<span class="md">{issue["date"]}</span>'
+            f'<span class="mt">{html.escape(title)}</span>'
+            f'<span class="mn">{n} 条</span></a>'
+        )
+    label = current_date or "最新"
     return (
-        '<header class="top">'
-        '<a class="brand" href="./">每日新闻</a>'
-        '<span class="tagline">国内外要闻 · 每日一辑</span>'
-        '<span class="grow"></span>'
-        f'<nav class="dates">{prev}<span class="cur">{html.escape(date_label)}</span>{nxt}</nav>'
-        '<input class="search js-q" type="search" placeholder="搜索标题或摘要…（按 / 聚焦）">'
-        '<button class="icon js-theme" title="深色模式">◐</button>'
-        '<a class="icon" href="./" title="历史回溯">☰</a>'
-        "</header>"
+        '<div class="datepick">'
+        f'<button class="datebtn">{html.escape(label)}<span class="car">▼</span></button>'
+        '<div class="menu">' + "".join(rows) + "</div></div>"
     )
 
 
-def render_issue(issue, prev_date, next_date) -> tuple[str, str]:
+def sticky_block(issues, current_date: str, tabs_html: str = "") -> str:
+    """报头 + 栏目整体吸顶：滚到哪都常驻，不会被隐藏。"""
+    tabs = f'<nav class="tabs">{tabs_html}</nav>' if tabs_html else ""
+    return (
+        '<div class="sticky"><header class="top">'
+        '<a class="brand" href="./">每日新闻</a>'
+        '<span class="tagline">国内外要闻 · 每日一辑</span>'
+        '<span class="grow"></span>'
+        + date_menu(issues, current_date) +
+        '<input class="search js-q" type="search" placeholder="搜索标题或摘要…（按 / 聚焦）">'
+        '<button class="icon js-theme" title="深色模式">◐</button>'
+        "</header>" + tabs + "</div>"
+    )
+
+
+def render_issue(issue, issues) -> tuple[str, str]:
     counts = [(s["name"], len(s["items"])) for s in issue["sections"]]
     total = sum(c for _n, c in counts)
-    date_label = f'{issue["date"]} · {total} 条'
 
-    tabs = [f'<button class="tab on" data-sec="all">全部 <b>{total}</b></button>']
+    # 栏目做成锚点：点击即跳到对应栏目；滚动时自动高亮当前栏目
+    tabs = [f'<a class="tab" data-sec="all" href="#">全部 <b>{total}</b></a>']
     for name, n in counts:
-        tabs.append(f'<button class="tab" data-sec="{html.escape(name)}">'
-                    f'{html.escape(name)} <b>{n}</b></button>')
+        tabs.append(f'<a class="tab" data-sec="{html.escape(name)}" href="#sec-{html.escape(name)}">'
+                    f'{html.escape(name)} <b>{n}</b></a>')
     tabs.append('<button class="tab" data-filter="unread">未读</button>')
     tabs.append('<button class="tab" data-filter="fav">收藏</button>')
 
-    body = [topbar(date_label, prev_date, next_date),
-            '<nav class="tabs">' + "".join(tabs) + "</nav>", "<main>"]
+    body = [sticky_block(issues, issue["date"], "".join(tabs)), "<main>"]
     if issue["meta"]:
         body.append('<div class="notice">' +
                     inline(" · ".join(issue["meta"])) + "</div>")
@@ -211,7 +228,8 @@ def render_issue(issue, prev_date, next_date) -> tuple[str, str]:
     for sec in issue["sections"]:
         if not sec["items"]:
             continue
-        body.append(f'<section class="sec" data-sec="{html.escape(sec["name"])}">')
+        body.append(f'<section class="sec" id="sec-{html.escape(sec["name"])}"'
+                    f' data-sec="{html.escape(sec["name"])}">')
         body.append(f'<div class="sec-head"><h2>{html.escape(sec["name"])}</h2>'
                     f'<span>{len(sec["items"])} 条</span></div>')
         for item in sec["items"]:
@@ -242,11 +260,8 @@ def render_index(issues) -> str:
             f'<span class="n">{n} 条</span></a></li>'
         )
     body = (
-        '<header class="top"><a class="brand" href="./">每日新闻</a>'
-        '<span class="tagline">国内外要闻 · 每日一辑</span>'
-        '<span class="grow"></span>'
-        '<input class="search js-q" type="search" placeholder="搜索往期标题…（按 / 聚焦）">'
-        '<button class="icon js-theme" title="深色模式">◐</button></header>'
+        sticky_block(issues, issues[0]["date"] if issues else "")
+        +
         '<main><ul class="issues">' + "".join(rows) + "</ul>"
         '<p class="empty js-empty" hidden>没有匹配的往期。</p></main>'
         "<footer>每日自动抓取与生成 · 版权归原媒体所有</footer>"
@@ -286,13 +301,11 @@ def main() -> int:
     dates = [i["date"] for i in issues]
     write_assets(out_dir)
 
+    # 下拉菜单按新 → 旧排
+    newest_first = list(reversed(issues))
     todo = issues if args.all else issues[-1:]
     for issue in todo:
-        idx = dates.index(issue["date"])
-        prev_d = dates[idx - 1] if idx > 0 else ""
-        next_d = dates[idx + 1] if idx + 1 < len(dates) else ""
-        body, title = render_issue(issue, f"{prev_d}.html" if prev_d else "",
-                                   f"{next_d}.html" if next_d else "")
+        body, title = render_issue(issue, newest_first)
         gap = [s for s in issue["sections"] if not s["items"]]
         target = out_dir / f'{issue["date"]}.html'
         target.write_text(page(title, body, issue["abstract"]), encoding="utf-8", newline="\n")
@@ -302,7 +315,7 @@ def main() -> int:
 
     latest = issues[-1]
     (out_dir / "index.html").write_text(
-        page("每日新闻 · 往期", render_index(list(reversed(issues))),
+        page("每日新闻 · 往期", render_index(newest_first),
              latest["abstract"] or "每日国内外要闻聚合与主编专栏"),
         encoding="utf-8", newline="\n")
     print(f"索引 -> index.html（{len(issues)} 期）")
