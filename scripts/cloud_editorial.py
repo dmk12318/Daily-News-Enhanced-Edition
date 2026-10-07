@@ -201,13 +201,15 @@ def has_any(text, keys):
     return any(k in low for k in keys)
 
 
-def write_column(name, intro, items, out_path: Path, with_meta=True) -> bool:
+def write_column(name, intro, items, out_path: Path, with_meta=True, extra="") -> bool:
     body = listing(items)
     if not body.strip():
         print(f"  {name}：没有可用稿件，跳过")
         return False
     head = FORMAT if with_meta else ("【主线】" + FORMAT.split("【主线】", 1)[1])
     prompt = f"{intro}\n\n{head}\n\n{RULES}\n\n今天的稿件：\n{body}"
+    if extra:
+        prompt += f"\n\n{extra}"
     try:
         text = chat([{"role": "system", "content": "你是中文报纸的主编，文风克制、判断锐利。"},
                      {"role": "user", "content": prompt}])
@@ -237,17 +239,25 @@ def run_columns(hours=24, feed_time="") -> int:
     ok.append(write_column(
         "中国", "写一篇「中国」专栏：只归纳境内媒体的报道。", domestic,
         lib.OUT_DIR / "中国专栏.md"))
+    # 涉华/涉鲁单独喂给模型：实测让它自己在全部稿件里挑，它会漏
+    if china_hits or sd_hits:
+        extra = ("下面这段是**已经按关键词筛出来的涉华、涉鲁稿件**，"
+                 "请只用来写文末两节，不要漏、也不用另找：\n\n"
+                 + listing(china_hits + sd_hits))
+    else:
+        extra = ("本期关键词筛选**没有命中**任何涉华、涉鲁稿件，"
+                 "文末两节请如实写「本期未见相关报道」。")
     ok.append(write_column(
         "国际",
-        "写一篇「国际」专栏，覆盖**全球**：世界各地的新闻都要讲，境外媒体涉华的报道也算。\n"
-        "正文按七个栏目（要闻/财经/科技/军事/体育/人文/社会）归纳，\n"
-        "**文末另起两个小节**，专门做涉华情报整理，不要写成评论：\n"
+        "写一篇「国际」专栏，覆盖**全球**：世界各地的新闻都要讲。\n"
+        "正文按七个栏目（要闻/财经/科技/军事/体育/人文/社会）归纳；\n"
+        "**文末必须另起两个小节**，只做情报整理、不写评论：\n"
         "## 涉台港澳疆藏 —— 境外媒体涉台、涉港、涉澳、涉疆、涉藏的报道；\n"
         "## 涉鲁简报 —— 与山东有关的报道。\n"
-        "这两节每节用【事实】【表态】【推测】三类分点；稿件为空时如实写"
-        "「本期未见相关报道」，不要编。",
+        "每节用【事实】【表态】【推测】三类分点。",
         overseas,
-        lib.OUT_DIR / "国际专栏.md"))
+        lib.OUT_DIR / "国际专栏.md",
+        extra=extra))
     print(f"完成 {sum(ok)} / 2")
     return 0 if any(ok) else 1
 
