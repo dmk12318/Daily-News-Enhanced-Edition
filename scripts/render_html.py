@@ -29,6 +29,8 @@ SECTIONS = ["要闻", "财经", "科技", "军事", "体育", "人文", "社会"
 ITEM_RE = re.compile(r"^- \[(.+?)\]\((\S+?)\)(?:\s+——\s+(.*))?$")
 META_RE = re.compile(r"^\s{2,}(.+)$")
 SEC_RE = re.compile(r"^## (.+?)（(\d+)）\s*$")
+# 这两节虽然可能是 ## 级，但属于专栏正文，不是新的专栏
+INLINE_HEADS = ("涉台港澳疆藏", "涉鲁简报", "涉华")
 
 
 def inline(text: str) -> str:
@@ -58,6 +60,10 @@ def md_body(lines) -> str:
             flush()
             out.append(f"<h3>【{m.group(1)}】</h3>")
             continue
+        if (m := re.match(r"#{2,4}\s+(.+)$", s)):
+            flush()
+            out.append(f"<h4>{inline(m.group(1))}</h4>")
+            continue
         if (m := re.match(r"\*(事实|判断)：\*\s*(.*)", s)):
             flush()
             cls = "fact" if m.group(1) == "事实" else "analysis"
@@ -75,35 +81,39 @@ def md_body(lines) -> str:
 
 def parse_issue(md: str):
     lines = md.splitlines()
-    issue = {"date": "", "title": "", "abstract": "", "meta": [], "editorial": [],
+    issue = {"date": "", "title": "", "abstract": "", "meta": [], "columns": [],
              "sections": [], "footer": []}
     if lines and lines[0].startswith("# "):
         m = re.search(r"(\d{4}-\d{2}-\d{2})", lines[0])
         issue["date"] = m.group(1) if m else ""
 
-    mode, cur = "head", None
+    mode, cur, col = "head", None, None
     for line in lines[1:]:
         s = line.strip()
-        if s.startswith("## 主编专栏"):
-            mode, cur = "editorial", None
-            continue
         if s.startswith("## 抓取说明"):
-            mode, cur = "footer", None
+            mode, cur, col = "footer", None, None
             continue
         if (m := SEC_RE.match(line)):
             cur = {"name": m.group(1), "count": int(m.group(2)), "items": []}
             issue["sections"].append(cur)
-            mode = "section"
+            mode, col = "section", None
+            continue
+        if s.startswith("## ") and not s[3:].strip().startswith(INLINE_HEADS):
+            name = s[3:].strip()
+            if mode == "head" and not issue["title"]:
+                issue["title"] = name          # 报头下方第一个二级标题 = 当期主标题
+                continue
+            col = {"name": name, "lines": []}
+            issue["columns"].append(col)
+            mode = "column"
             continue
         if mode == "head":
-            if s.startswith("## ") and not issue["title"]:
-                issue["title"] = s[3:].strip()
-            elif s.startswith("> "):
+            if s.startswith("> "):
                 issue["meta"].append(s[2:].strip())
             elif s.startswith("**摘要：**"):
                 issue["abstract"] = s[len("**摘要：**"):].strip()
-        elif mode == "editorial":
-            issue["editorial"].append(line)
+        elif mode == "column" and col is not None:
+            col["lines"].append(line)
         elif mode == "section" and cur is not None:
             if (m := ITEM_RE.match(line)):
                 cur["items"].append({
@@ -213,7 +223,7 @@ def render_issue(issue, issues) -> tuple[str, str]:
         body.append('<div class="notice">' +
                     inline(" · ".join(issue["meta"])) + "</div>")
 
-    if issue["title"] or issue["editorial"]:
+    if issue["columns"] or issue["title"]:
         body.append('<section class="card ed">')
         body.append('<div class="badges"><span class="badge">主编专栏</span>'
                     '<span class="badge ghost">每日新闻</span></div>')
@@ -222,7 +232,9 @@ def render_issue(issue, issues) -> tuple[str, str]:
         if issue["abstract"]:
             body.append(f'<div class="lead"><p><strong>摘要：</strong>'
                         f'{inline(issue["abstract"])}</p></div>')
-        body.append(md_body(issue["editorial"]))
+        for col in issue["columns"]:
+            body.append(f'<h2 class="col-name">{html.escape(col["name"])}</h2>')
+            body.append(md_body(col["lines"]))
         body.append("</section>")
 
     for sec in issue["sections"]:

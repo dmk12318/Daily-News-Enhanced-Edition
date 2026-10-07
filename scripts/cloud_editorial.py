@@ -288,6 +288,8 @@ def append_focus_sections(path: Path, focus) -> None:
     except Exception as exc:  # noqa: BLE001
         print(f"  涉华/涉鲁小节生成失败：{exc}")
         return
+    # 小节降一级：两个 ## 标题和专栏名的级别一样，会把渲染器截断
+    text = re.sub(r"(?m)^##\s+(?=涉台港澳疆藏|涉鲁简报)", "### ", text)
     with open(path, "a", encoding="utf-8", newline="\n") as fh:
         fh.write("\n\n" + text.strip() + "\n")
     print(f"  已拼接涉华/涉鲁小节（素材 {len(focus)} 条，{len(text)} 字）")

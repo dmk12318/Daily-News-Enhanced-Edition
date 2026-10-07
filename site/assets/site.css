@@ -87,6 +87,11 @@ main{max-width:46rem; margin:0 auto; padding:1.2rem 1rem 4rem}
   line-height:1.45; margin:.35rem 0 1rem}
 .ed h3{font-size:1rem; margin:1.6rem 0 .5rem}
 .ed h3:first-child{margin-top:0}
+.ed h4{font-size:.92rem; margin:1.5rem 0 .4rem; color:var(--accent);
+  border-bottom:1px solid var(--line); padding-bottom:.25rem}
+.col-name{font-size:1.05rem; margin:1.8rem 0 .6rem;
+  padding-bottom:.25rem; border-bottom:2px solid var(--fg);
+  font-family:Georgia,"Songti SC","SimSun",serif}
 .ed p{margin:.5rem 0}
 .fact,.analysis{margin:.5rem 0; padding-left:.8rem}
 .fact{border-left:3px solid var(--fact)}
