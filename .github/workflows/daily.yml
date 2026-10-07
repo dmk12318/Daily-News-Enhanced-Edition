@@ -90,8 +90,7 @@ jobs:
           if [ -f out/中国专栏.md ]; then
             python scripts/digest.py $FT \
               --editorial 中国=out/中国专栏.md \
-              --editorial 国际=out/国际专栏.md \
-              --editorial 中国境外=out/中国境外专栏.md
+              --editorial 国际=out/国际专栏.md
           else
             python scripts/digest.py $FT
           fi
