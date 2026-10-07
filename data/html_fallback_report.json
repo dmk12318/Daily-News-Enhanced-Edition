@@ -156,9 +156,9 @@
  {
   "来源": "澎湃新闻",
   "范围": "境内",
-  "可达": true,
-  "抽到": 8,
-  "错误": ""
+  "可达": false,
+  "抽到": 0,
+  "错误": "HTTPError: HTTP Error 403: Forbidden"
  },
  {
   "来源": "界面新闻",
@@ -436,9 +436,9 @@
  {
   "来源": "共同社 Kyodo News",
   "范围": "境外",
-  "可达": true,
-  "抽到": 12,
-  "错误": ""
+  "可达": false,
+  "抽到": 0,
+  "错误": "HTTPError: HTTP Error 403: Forbidden"
  },
  {
   "来源": "韩联社 Yonhap",
@@ -471,9 +471,9 @@
  {
   "来源": "国际文传电讯社 Interfax",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 502: Bad Gateway"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "乌克兰国家通讯社 Ukrinform",
@@ -499,23 +499,23 @@
  {
   "来源": "华盛顿邮报 The Washington Post",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "TimeoutError: The read operation timed out"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "有线电视新闻网 CNN",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certific"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "今日美国 USA Today",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 403: Forbidden"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "美国广播公司新闻 ABC News",
@@ -535,7 +535,7 @@
   "来源": "微软全国广播 MSNBC",
   "范围": "境外",
   "可达": true,
-  "抽到": 1,
+  "抽到": 12,
   "错误": ""
  },
  {
@@ -583,9 +583,9 @@
  {
   "来源": "每日电讯报 The Daily Telegraph",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "泰晤士报 The Times",
@@ -620,14 +620,14 @@
   "范围": "境外",
   "可达": false,
   "抽到": 0,
-  "错误": "HTTPError: HTTP Error 502: Bad Gateway"
+  "错误": "URLError: <urlopen error [Errno -2] Name or service not known>"
  },
  {
   "来源": "独立电视台新闻 ITV News",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "RemoteDisconnected: Remote end closed connection without response"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "旁观者 The Spectator",
@@ -640,7 +640,7 @@
   "来源": "南德意志报 Süddeutsche Zeitung",
   "范围": "境外",
   "可达": true,
-  "抽到": 9,
+  "抽到": 7,
   "错误": ""
  },
  {
@@ -688,9 +688,9 @@
  {
   "来源": "回声报 Les Échos",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 403: Forbidden"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "巴黎人报 Le Parisien",
@@ -702,23 +702,23 @@
  {
   "来源": "法兰西西部报 Ouest-France",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 403: Forbidden"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "法国 24 France 24",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 403: Forbidden"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "法国国际广播 RFI",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 403: Forbidden"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "晚邮报 Corriere della Sera",
@@ -753,7 +753,7 @@
   "范围": "境外",
   "可达": false,
   "抽到": 0,
-  "错误": "HTTPError: HTTP Error 302: The HTTP server returned a redirect error that would lead to an infinite loop.\nThe last 30x e"
+  "错误": "HTTPError: HTTP Error 403: Forbidden"
  },
  {
   "来源": "政治报 Politiken",
@@ -766,15 +766,15 @@
   "来源": "赫尔辛基新闻 Helsingin Sanomat",
   "范围": "境外",
   "可达": true,
-  "抽到": 7,
+  "抽到": 6,
   "错误": ""
  },
  {
   "来源": "今日俄罗斯 RT",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certific"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "日本广播协会 NHK",
@@ -835,23 +835,23 @@
  {
   "来源": "韩国放送公社 KBS",
   "范围": "境外",
-  "可达": false,
+  "可达": true,
   "抽到": 0,
-  "错误": "HTTPError: HTTP Error 502: Bad Gateway"
+  "错误": ""
  },
  {
   "来源": "文化广播公司 MBC",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 403: Forbidden"
+  "可达": true,
+  "抽到": 4,
+  "错误": ""
  },
  {
   "来源": "明报 Ming Pao",
   "范围": "境外",
-  "可达": true,
+  "可达": false,
   "抽到": 0,
-  "错误": ""
+  "错误": "HTTPError: HTTP Error 403: Forbidden"
  },
  {
   "来源": "中国时报 China Times",
@@ -898,9 +898,9 @@
  {
   "来源": "新德里电视 NDTV",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 403: Forbidden"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "战斗报 Daily Jang",
@@ -954,9 +954,9 @@
  {
   "来源": "阿拉伯电视台 Al Arabiya",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 403: Forbidden"
+  "可达": true,
+  "抽到": 12,
+  "错误": ""
  },
  {
   "来源": "国土报 Haaretz",
@@ -1024,8 +1024,8 @@
  {
   "来源": "澳大利亚人报 The Australian",
   "范围": "境外",
-  "可达": false,
-  "抽到": 0,
-  "错误": "HTTPError: HTTP Error 403: Forbidden"
+  "可达": true,
+  "抽到": 2,
+  "错误": ""
  }
 ]

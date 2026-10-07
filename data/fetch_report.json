@@ -60,7 +60,7 @@
     "范围": "境外",
     "feed_url": "https://www.latimes.com/index.rss",
     "成功": true,
-    "窗口内条数": 36,
+    "窗口内条数": 39,
     "错误": ""
   },
   {
@@ -68,7 +68,7 @@
     "范围": "境外",
     "feed_url": "https://feeds.nbcnews.com/nbcnews/public/news",
     "成功": true,
-    "窗口内条数": 20,
+    "窗口内条数": 22,
     "错误": ""
   },
   {
@@ -84,7 +84,7 @@
     "范围": "境外",
     "feed_url": "https://www.politico.com/rss/politicopicks.xml",
     "成功": true,
-    "窗口内条数": 12,
+    "窗口内条数": 11,
     "错误": ""
   },
   {
@@ -92,7 +92,7 @@
     "范围": "境外",
     "feed_url": "https://www.theatlantic.com/feed/all/",
     "成功": true,
-    "窗口内条数": 13,
+    "窗口内条数": 11,
     "错误": ""
   },
   {
@@ -108,7 +108,7 @@
     "范围": "境外",
     "feed_url": "https://time.com/feed/",
     "成功": true,
-    "窗口内条数": 11,
+    "窗口内条数": 15,
     "错误": ""
   },
   {
@@ -140,7 +140,7 @@
     "范围": "境外",
     "feed_url": "https://www.vox.com/rss/index.xml",
     "成功": true,
-    "窗口内条数": 9,
+    "窗口内条数": 8,
     "错误": ""
   },
   {
@@ -156,7 +156,7 @@
     "范围": "境外",
     "feed_url": "https://nypost.com/feed/",
     "成功": true,
-    "窗口内条数": 21,
+    "窗口内条数": 24,
     "错误": ""
   },
   {
@@ -172,7 +172,7 @@
     "范围": "境外",
     "feed_url": "https://www.voanews.com/api/",
     "成功": true,
-    "窗口内条数": 4,
+    "窗口内条数": 6,
     "错误": ""
   },
   {
@@ -180,7 +180,7 @@
     "范围": "境外",
     "feed_url": "https://www.rferl.org/api/",
     "成功": true,
-    "窗口内条数": 11,
+    "窗口内条数": 12,
     "错误": ""
   },
   {
@@ -188,7 +188,7 @@
     "范围": "境外",
     "feed_url": "https://feeds.bbci.co.uk/news/rss.xml",
     "成功": true,
-    "窗口内条数": 30,
+    "窗口内条数": 31,
     "错误": ""
   },
   {
@@ -204,7 +204,7 @@
     "范围": "境外",
     "feed_url": "https://www.ft.com/rss/home/international",
     "成功": true,
-    "窗口内条数": 11,
+    "窗口内条数": 12,
     "错误": ""
   },
   {
@@ -284,7 +284,7 @@
     "范围": "境外",
     "feed_url": "https://www.lemonde.fr/en/rss/une.xml",
     "成功": true,
-    "窗口内条数": 16,
+    "窗口内条数": 17,
     "错误": ""
   },
   {
@@ -292,7 +292,7 @@
     "范围": "境外",
     "feed_url": "https://www.lastampa.it/rss/copertina.xml",
     "成功": true,
-    "窗口内条数": 40,
+    "窗口内条数": 35,
     "错误": ""
   },
   {
@@ -308,7 +308,7 @@
     "范围": "境外",
     "feed_url": "https://www.elmundo.es/rss/googlenews/portada.xml",
     "成功": true,
-    "窗口内条数": 31,
+    "窗口内条数": 33,
     "错误": ""
   },
   {
@@ -451,9 +451,11 @@
     "来源": "印度快报 The Indian Express",
     "范围": "境外",
     "feed_url": "https://indianexpress.com/feed/",
-    "成功": true,
-    "窗口内条数": 40,
-    "错误": ""
+    "成功": false,
+    "窗口内条数": 0,
+    "错误": "HTTPError: HTTP Error 403: Forbidden",
+    "上次成功": null,
+    "上次条数": null
   },
   {
     "来源": "黎明报 Dawn",
@@ -556,7 +558,7 @@
     "范围": "境外",
     "feed_url": "https://www.ctvnews.ca:443/arc/outboundfeeds/rss/",
     "成功": true,
-    "窗口内条数": 40,
+    "窗口内条数": 38,
     "错误": ""
   },
   {
