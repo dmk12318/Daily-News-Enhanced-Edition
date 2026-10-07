@@ -201,13 +201,12 @@ def has_any(text, keys):
     return any(k in low for k in keys)
 
 
-def write_column(name, intro, items, out_path: Path, with_meta=False) -> bool:
+def write_column(name, intro, items, out_path: Path, with_meta=True) -> bool:
     body = listing(items)
     if not body.strip():
         print(f"  {name}：没有可用稿件，跳过")
         return False
-    head = FORMAT if with_meta else FORMAT.split("【主线】", 1)[1]
-    head = ("【主线】" + head) if not with_meta else head
+    head = FORMAT if with_meta else ("【主线】" + FORMAT.split("【主线】", 1)[1])
     prompt = f"{intro}\n\n{head}\n\n{RULES}\n\n今天的稿件：\n{body}"
     try:
         text = chat([{"role": "system", "content": "你是中文报纸的主编，文风克制、判断锐利。"},
@@ -227,25 +226,37 @@ def run_columns(hours=24, feed_time="") -> int:
         return 2
     domestic = [i for i in items if i["scope"] == "境内"]
     overseas = [i for i in items if i["scope"] == "境外"]
-    world = [i for i in overseas
-             if not has_any(i["title"] + i["summary"], CHINA_KEYS)
-             and not has_any(i["title"] + i["summary"], SHANDONG_KEYS)]
+    # 涉华/涉鲁必须先按关键词筛出来，不能丢给模型自己挑——实测它会漏
+    china_hits = [i for i in overseas if has_any(i["title"] + i["summary"], CHINA_KEYS)]
+    sd_hits = [i for i in overseas if has_any(i["title"] + i["summary"], SHANDONG_KEYS)]
+    # 国际只收「不涉华、不涉鲁」的境外稿，避免和国际/境外两栏撞车
+    world = [i for i in overseas if i not in china_hits and i not in sd_hits]
 
-    print(f"稿件：境内 {len(domestic)}、境外 {len(overseas)}（其中国际向 {len(world)}）")
+    print(f"稿件：境内 {len(domestic)}、境外 {len(overseas)}"
+          f"（国际向 {len(world)}、涉华 {len(china_hits)}、涉鲁 {len(sd_hits)}）")
     lib.OUT_DIR.mkdir(parents=True, exist_ok=True)
     ok = []
     ok.append(write_column(
         "中国", "写一篇「中国」专栏：只归纳境内媒体的报道。", domestic,
-        lib.OUT_DIR / "中国专栏.md", with_meta=True))
+        lib.OUT_DIR / "中国专栏.md"))
     ok.append(write_column(
-        "国际", "写一篇「国际」专栏：只归纳国际新闻（不含涉华、涉鲁内容）。", world,
+        "国际", "写一篇「国际」专栏：只讲世界各地的新闻，不涉及中国。", world,
         lib.OUT_DIR / "国际专栏.md"))
+
+    # 中国境外：只聚焦「境外媒体怎么报道中国」，再加一段整体舆论归纳
+    focus = china_hits + sd_hits
+    if not focus:
+        print("  中国境外：本期没有涉华/涉鲁稿件，仍按实际情况如实写")
     ok.append(write_column(
         "中国境外",
-        "写一篇「中国境外」专栏：只归纳境外媒体。文末必须另起两节，"
-        "分别写「涉台港澳疆藏」（境外媒体涉华报道）和「涉鲁简报」（与山东有关的报道），"
-        "这两节只做开源情报整理，严格区分【事实】【表态】【推测】。",
-        overseas, lib.OUT_DIR / "中国境外专栏.md"))
+        "写一篇「中国境外」专栏，只聚焦**境外媒体如何报道中国**：\n"
+        "本文只给与涉华、涉鲁相关的稿件，不要复述世界其他新闻。\n"
+        "结构固定为两节：\n"
+        "## 涉台港澳疆藏 —— 整理上述涉华稿件（含涉台、涉港、涉澳、涉疆、涉藏），\n"
+        "## 涉鲁简报 —— 整理与山东有关的稿件。\n"
+        "每节用【事实】【表态】【推测】三类分点，只做情报整理，不做评论。\n"
+        "稿件为空时，如实写「本期给定稿件未见相关报道」，不要编。",
+        focus, lib.OUT_DIR / "中国境外专栏.md"))
     print(f"完成 {sum(ok)} / 3")
     return 0 if any(ok) else 1
 
