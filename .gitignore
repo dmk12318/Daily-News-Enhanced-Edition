@@ -25,3 +25,6 @@ data/sections.json
 .idea/
 .DS_Store
 Thumbs.db
+
+# 本机 agent 配置（项目级 skill 等）：只在本机生效，不发布到公开仓库
+.codex/
